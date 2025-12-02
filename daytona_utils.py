@@ -1,14 +1,16 @@
-# from daytona import CreateSandboxFromSnapshotParams, CodeLanguage
-# params = CreateSandboxFromSnapshotParams(name="JobStore", language=CodeLanguage.PYTHON)
-# sandbox = daytona.create(params=params)
-
-from daytona import Daytona
+from daytona import Daytona, CreateSandboxFromSnapshotParams, CodeLanguage
 from schema import GeneratorOutput, ReflectorOutput, ManagerOutput
 from pydantic import SecretStr
 import os
 from langchain_openai import ChatOpenAI
 
 sandbox = Daytona().find_one("CodeStore")
+
+def create_sandbox(name: str):
+    params = CreateSandboxFromSnapshotParams(name=name, language=CodeLanguage.PYTHON)
+    resp = sandbox = Daytona().create(params=params)
+    sandbox.process.exec("mkdir charts")
+    return resp
 
 def execute_code(code):
     resp = sandbox.process.code_run(code)
@@ -48,3 +50,5 @@ def download_charts(chart_names: list[str]):
     for chart_name in chart_names:
         sandbox.fs.download_file(chart_name, chart_name)
         print(f"Downloaded {chart_name}")
+
+
